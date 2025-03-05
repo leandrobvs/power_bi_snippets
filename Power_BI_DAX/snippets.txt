@@ -1,0 +1,70 @@
+// Calendário 001
+
+DimDate = 
+VAR _MinData = MIN ( TabelaReferencia[Date] )
+VAR _MaxData = MAX ( TabelaReferencia[Date] )
+
+RETURN
+    ADDCOLUMNS (
+        CALENDAR (
+            _MinData,
+            _MaxData
+        ),
+        "DataID", FORMAT ( [Date], "YYYYMMDD" ),
+        "Ano", YEAR ( [Date] ),
+        "NumeroMes", FORMAT ( [Date], "MM" ),
+        "AnoMesNumero", FORMAT ( [Date], "YYYY/MM" ),
+        "AnoMes", FORMAT ( [Date], "YYYY/mmm" ),
+        "MesNomeCurto", FORMAT ( [Date], "mmm" ),
+        "Nome Mes", FORMAT ( [Date], "mmmm" ),
+        "Numero dia da Semana", WEEKDAY ( [Date] , 2), -- editar o número para configurar começo da semana, 1 para Domingo, 2 para Segunda etc.
+        "Dia da Semana Curto", FORMAT ( [Date], "ddd" ),
+        "Dia da Semana", FORMAT ( [Date], "dddd" ),
+        "Numero Semana", WEEKNUM([Date], 21), -- utilizando ISO 8601, semana começa na segunda, 21 for ISO 8601, mais detalhes https://dax.guide/weeknum/
+        "Trimestre", "Q" & FORMAT ( [Date], "Q" ), -- editar o Q se quiser colocar TRI ou Trimestre
+        "AnoTrimestre", FORMAT ( [Date], "YYYY" ) & "/Q" & FORMAT ( [Date], "Q" ) -- editar o /Q se quiser colocar TRI ou Trimestre
+    )
+
+// Filtro extra para usar em comparações YoY
+
+NoPassado = 
+VAR ultimaData = MAX(Tabela[Date])
+VAR ultimaDataPY = EDATE(ultimaData, -12)
+
+RETURN
+    DimDate[Date] <= ultimaDataPY
+
+// PYTD exemplo Receita/Quantidade/Lucro etc..
+
+CALCULATE(
+    [Receita],
+    SAMEPERIODLASTYEAR(DimDate[Date]),
+    DimDate[NoPassado] = TRUE
+)
+
+
+
+
+
+// Exemplo de Slicer Dinâmico
+// Página Inicial - + Inserir Dados e criar os valores necessários e.g Receita, Quantidade, Lucro Bruto, Toneladas etc...
+// Slicer - nova medida
+
+Slicers PYTD Menu = 
+
+VAR elemento = SELECTEDVALUE('_Slicer Menus'[Valores])
+
+RETURN
+
+SWITCH(
+    elemento,
+    "Receita",[Receita PYTD],
+    "Toneladas", [Toneladas PYTD],
+    BLANK()
+)
+
+
+
+
+
+//
