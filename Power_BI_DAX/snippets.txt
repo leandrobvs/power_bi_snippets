@@ -63,8 +63,21 @@ SWITCH(
     BLANK()
 )
 
+Slicers YTD Menu = 
 
+VAR elemento = SELECTEDVALUE('_Slicer Menus'[Valores])
 
+RETURN
 
+SWITCH(
+    elemento,
+    "Receita",[Receita PYTD],
+    "Toneladas", [Toneladas PYTD],
+    BLANK()
+)
+
+// Diferença entre ano corrente com ano anterior:
+
+YTD vs PYTD = [Slicers YTD Menu] - [Slicers PYTD Menu]
 
 //
